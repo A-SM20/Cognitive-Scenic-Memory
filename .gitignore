@@ -1,0 +1,82 @@
+# Cognitive Scene Memory
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.Python
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.manifest
+*.spec
+venv/
+.venv/
+ENV/
+
+# YOLO model weights
+*.pt
+*.onnx
+*.engine
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite
+frontend/dist/
+frontend/.vite/
+
+# Data uploads (keep structure, ignore content)
+data/uploads/*
+!data/uploads/.gitkeep
+data/scenes/*
+!data/scenes/.gitkeep
+data/observations/*
+!data/observations/.gitkeep
+data/models/*
+!data/models/.gitkeep
+
+# Logs
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml

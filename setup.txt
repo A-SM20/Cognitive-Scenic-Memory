@@ -1,0 +1,122 @@
+================================================================================
+COGNITIVE SCENE MEMORY — QUICK START & COMMAND GUIDE
+================================================================================
+
+This document contains all the necessary commands to start, run, view, and test
+the Backend, Frontend, and API documentation.
+
+--------------------------------------------------------------------------------
+1. ACCESS URLS & SERVICES
+--------------------------------------------------------------------------------
+- Frontend Web App:       http://localhost:5173
+- Backend API Root:       http://localhost:8000/
+- API Documentation (UI): http://localhost:8000/docs
+- Alternative API Docs:   http://localhost:8000/redoc
+- Health Check Endpoint:  http://localhost:8000/api/health
+- OpenAPI JSON Schema:    http://localhost:8000/openapi.json
+
+
+--------------------------------------------------------------------------------
+2. STARTING THE BACKEND (FastAPI + YOLO + SQLite)
+--------------------------------------------------------------------------------
+Open a terminal (PowerShell or CMD) in the project root (d:\prjs\cognitive_scenic_memory):
+
+Option A: Windows PowerShell
+----------------------------
+cd backend
+..\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+Option B: Windows Command Prompt (CMD)
+--------------------------------------
+cd backend
+..\venv\Scripts\activate.bat
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+Option C: Direct Python Execution (No activation required)
+---------------------------------------------------------
+cd backend
+..\venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+
+--------------------------------------------------------------------------------
+3. STARTING THE FRONTEND (React + Vite + Tailwind)
+--------------------------------------------------------------------------------
+Open a SECOND terminal window in the project root:
+
+cd frontend
+npm install              # (Only needed once or after adding dependencies)
+npm run dev
+
+The Vite development server will start at:
+👉 http://localhost:5173
+
+
+--------------------------------------------------------------------------------
+4. VIEWING THE API & SYSTEM
+--------------------------------------------------------------------------------
+Once the backend is running:
+1. Open your browser and navigate to:
+   http://localhost:8000/docs
+2. Explore interactive endpoints:
+   - Perception / Detection:  POST /api/process/image
+   - Object Tracking Memory:  GET  /api/memory/summary
+                              GET  /api/memory/objects
+                              POST /api/memory/decay
+   - Semantic Scene Graph:    GET  /api/scene-graph/{scene_id}
+                              POST /api/scene-graph/{scene_id}/build
+                              GET  /api/scene-graph/{scene_id}/relationships
+   - Change Detection:        POST /api/changes/compare
+                              GET  /api/changes/recent
+                              GET  /api/changes/scene/{scene_id}
+                              GET  /api/changes/object/{object_id}
+   - Scenes & Objects:        GET  /api/scenes
+                              GET  /api/objects
+
+
+--------------------------------------------------------------------------------
+5. RUNNING TESTS & VERIFICATION
+--------------------------------------------------------------------------------
+
+A. Run Backend Automated Test Suite (43 tests):
+------------------------------------------------
+cd backend
+..\venv\Scripts\python.exe -m pytest tests/ -v
+
+B. Run Specific Test Groups:
+----------------------------
+# API integration tests (all endpoints)
+..\venv\Scripts\python.exe -m pytest tests/test_api.py -v
+
+# Cognitive memory tests
+..\venv\Scripts\python.exe -m pytest tests/test_memory_service.py -v
+
+# Scene graph spatial relationships tests
+..\venv\Scripts\python.exe -m pytest tests/test_scene_graph.py -v
+
+# Change detection engine tests
+..\venv\Scripts\python.exe -m pytest tests/test_change_detection.py -v
+
+C. Verify Frontend Build & TypeScript:
+--------------------------------------
+cd frontend
+npx tsc --noEmit         # Type check without emitting files
+npm run build            # Create production bundle in dist/
+
+
+--------------------------------------------------------------------------------
+6. FRESH INSTALLATION / DEPENDENCY SETUP (IF NEEDED)
+--------------------------------------------------------------------------------
+If setting up on a new machine or fresh environment:
+
+Python Backend:
+---------------
+python -m venv venv
+venv\Scripts\activate
+pip install -r backend\requirements.txt
+
+Frontend:
+---------
+cd frontend
+npm install
+================================================================================

@@ -15,6 +15,11 @@ import type {
   SceneGraphResponse,
   SceneComparison,
   ChangeEvent,
+  TimelineResponse,
+  SettingsData,
+  SettingsUpdatePayload,
+  ChatQueryRequest,
+  ChatQueryResponse,
 } from '../types';
 
 const BASE_URL = '/api';
@@ -38,6 +43,16 @@ export async function processImage(file: File): Promise<DetectionResult> {
 
   return response.json();
 }
+
+/**
+ * Get the most recent detection result from any source (including robot).
+ */
+export async function getLatestDetection(): Promise<DetectionResult | null> {
+  const response = await fetch(`${BASE_URL}/detection/latest`);
+  if (!response.ok) return null;
+  return response.json();
+}
+
 
 /**
  * Get system health status.
@@ -187,4 +202,52 @@ export async function getChangesForObject(objectId: string): Promise<ChangeEvent
   if (!response.ok) throw new Error(`Failed to fetch object changes: ${response.status}`);
   return response.json();
 }
+
+/**
+ * Get unified chronological event timeline.
+ */
+export async function getTimeline(limit = 50, offset = 0, eventType?: string): Promise<TimelineResponse> {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+  if (eventType) params.set('event_type', eventType);
+
+  const response = await fetch(`${BASE_URL}/timeline?${params}`);
+  if (!response.ok) throw new Error(`Failed to fetch timeline: ${response.status}`);
+  return response.json();
+}
+
+/**
+ * Get current system settings and thresholds.
+ */
+export async function getSettings(): Promise<SettingsData> {
+  const response = await fetch(`${BASE_URL}/settings`);
+  if (!response.ok) throw new Error(`Failed to fetch settings: ${response.status}`);
+  return response.json();
+}
+
+/**
+ * Update runtime system settings.
+ */
+export async function updateSettings(payload: SettingsUpdatePayload): Promise<SettingsData> {
+  const response = await fetch(`${BASE_URL}/settings`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) throw new Error(`Failed to update settings: ${response.status}`);
+  return response.json();
+}
+
+/**
+ * Ask the Cognitive Scene Memory Chatbot a question.
+ */
+export async function askChatbot(request: ChatQueryRequest): Promise<ChatQueryResponse> {
+  const response = await fetch(`${BASE_URL}/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) throw new Error(`Chatbot query failed: ${response.status}`);
+  return response.json();
+}
+
 

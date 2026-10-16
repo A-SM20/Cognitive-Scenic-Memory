@@ -72,13 +72,16 @@ Once the backend is running:
                               GET  /api/changes/object/{object_id}
    - Scenes & Objects:        GET  /api/scenes
                               GET  /api/objects
-
+   - Cognitive Chatbot:       POST /api/query (natural language Q&A, relations & comparison)
+   - Event Timeline:          GET  /api/timeline (chronological observations & changes)
+   - Runtime Settings:        GET  /api/settings
+                              PATCH /api/settings
 
 --------------------------------------------------------------------------------
 5. RUNNING TESTS & VERIFICATION
 --------------------------------------------------------------------------------
 
-A. Run Backend Automated Test Suite (43 tests):
+A. Run Backend Automated Test Suite (47 tests):
 ------------------------------------------------
 cd backend
 ..\venv\Scripts\python.exe -m pytest tests/ -v

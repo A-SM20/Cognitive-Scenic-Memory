@@ -1,13 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ImageUploader from '../components/ImageUploader';
 import DetectionCard from '../components/DetectionCard';
 import type { DetectionResult } from '../types';
-import { processImage } from '../services/api';
+import { processImage, getLatestDetection } from '../services/api';
 
 export default function Perception() {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const fetchLatest = async () => {
+    setIsSyncing(true);
+    try {
+      const latest = await getLatestDetection();
+      if (latest) {
+        setResult(latest);
+      }
+    } catch {
+      // Ignore error if no scenes exist yet
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLatest();
+  }, []);
 
   const handleUpload = async (file: File) => {
     setIsProcessing(true);
@@ -27,21 +46,32 @@ export default function Perception() {
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-text-primary">Live Perception</h2>
           <p className="text-sm text-text-muted mt-1">
-            Upload an image to run real-time YOLO object detection
+            Real-time YOLO object detection with Pi 5 robot sync and manual upload
           </p>
         </div>
-        {result && (
-          <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchLatest}
+            disabled={isSyncing}
+            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-accent-cyan/15 hover:bg-accent-cyan/25 text-accent-cyan border border-accent-cyan/30 transition flex items-center gap-1.5"
+            title="Fetch the latest image processed from the Raspberry Pi or upload"
+          >
+            <span className={isSyncing ? 'animate-spin' : ''}>🔄</span>
+            <span>{isSyncing ? 'Syncing...' : 'Sync Robot Scan'}</span>
+          </button>
+
+          {result && (
             <div className="text-right">
-              <div className="text-xs text-text-muted">Scene ID</div>
+              <div className="text-xs text-text-muted">Active Scene</div>
               <div className="text-sm font-mono text-accent-cyan">{result.scene_id}</div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Upload Area */}

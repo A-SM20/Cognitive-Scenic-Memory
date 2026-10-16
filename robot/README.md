@@ -113,13 +113,17 @@ python3 test_motors.py
 - Tests forward, backward, pivot left, pivot right.
 - If any wheel turns in the opposite direction, invert its two wires at the L298N terminal.
 
-### Step 4: Standalone 4-Direction Room Capture
+### Step 4: Interactive Teleoperation & Cognitive Scan (WASD Driving + Servo + Perception)
 ```bash
-python3 capture_scan.py
+python3 teleop_drive.py --ip 10.150.189.180 --port 8001
 ```
-- Captures 4 room viewpoints (Front, Right, Back, Left) by executing 90° pivot turns.
-- Displays live step-by-step progress on the LCD.
-- Saves high-res photos to `scans/scan_YYYYMMDD_HHMMSS/`.
+- **[W] / [S]**: Drive Forward / Backward
+- **[A] / [D]**: Pivot Left / Right
+- **[X] / [Space]**: Stop Motors
+- **[J] / [L]**: Pan Servo Left / Right
+- **[K]**: Center Servo (90°)
+- **[C] / [Enter]**: Capture camera frame, upload to PC backend, run YOLO detection, and display object counts on the LCD!
+- **[Q]**: Quit safely.
 
 ---
 
@@ -128,12 +132,12 @@ python3 capture_scan.py
 Connect the robot directly to the **Cognitive Scene Memory** server running on your workstation/laptop:
 
 ```bash
-# Run the autonomous cognitive client (replace IP with your workstation IP):
-python3 robot_cognitive_agent.py --server http://192.168.1.100:8000
+# Run the autonomous cognitive client:
+python3 robot_cognitive_agent.py --server http://10.150.189.180:8001
 ```
 
 ### What Happens Automatically:
-1. Validates connection to `http://<SERVER_IP>:8000/api/health`.
+1. Validates connection to `http://10.150.189.180:8001/api/health`.
 2. Captures all 4 views of the room in sequence.
 3. Uploads each view via HTTP POST to `/api/process/image`.
 4. The server runs real-time YOLOv8 detection, updates spatial objects, advances memory decay, constructs the semantic scene graph, and detects changes vs previous scans.
@@ -150,11 +154,6 @@ python3 robot_cognitive_agent.py --server http://192.168.1.100:8000
 You can also run a dedicated monitor on the Raspberry Pi 5 to display current room object counts at any time:
 
 ```bash
-python3 display_object_count.py --server http://192.168.1.100:8000
+python3 display_object_count.py --server http://10.150.189.180:8001
 ```
-
-### What It Displays on the 16x2 LCD:
-- **Screen 1**: `Room Objs: 8` | `Unique: 8 items`
-- **Screen 2**: `Top Detected:` | `chair:3 cup:2`
-- **Screen 3**: `Changes Seen:` | `Total Chgs: 2`
 

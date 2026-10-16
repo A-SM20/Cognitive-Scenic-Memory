@@ -8,20 +8,28 @@ export default function Overview() {
   const [scenes, setScenes] = useState<SceneResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchData = async (silent = false) => {
+    if (!silent) setIsRefreshing(true);
+    try {
+      const [h, s] = await Promise.all([getHealth(), getScenes(6)]);
+      setHealth(h);
+      setScenes(s);
+      setError(null);
+    } catch (e) {
+      if (!silent) setError(e instanceof Error ? e.message : 'Failed to connect to backend');
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [h, s] = await Promise.all([getHealth(), getScenes(5)]);
-        setHealth(h);
-        setScenes(s);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to connect to backend');
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchData();
+    // Poll every 3 seconds to catch live robot image uploads
+    const interval = setInterval(() => fetchData(true), 3000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -37,12 +45,31 @@ export default function Overview() {
   return (
     <div className="space-y-6 animate-slide-up">
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-text-primary">System Overview</h2>
-        <p className="text-sm text-text-muted mt-1">
-          Cognitive Scene Memory — perception pipeline status and activity
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-text-primary">System Overview</h2>
+          <p className="text-sm text-text-muted mt-1">
+            Cognitive Scene Memory — perception pipeline status and real-time activity
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs font-mono px-2.5 py-1 rounded-full bg-status-active/10 text-status-active border border-status-active/20">
+            <span className="w-2 h-2 rounded-full bg-status-active animate-pulse" />
+            <span>Live Robot Sync</span>
+          </div>
+
+          <button
+            onClick={() => fetchData(false)}
+            disabled={isRefreshing}
+            className="px-2.5 py-1 text-xs font-medium rounded-lg bg-bg-card hover:bg-bg-input text-text-secondary hover:text-accent-cyan border border-border transition flex items-center gap-1.5"
+          >
+            <span className={isRefreshing ? "animate-spin" : ""}>🔄</span>
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
+
 
       {error && (
         <div className="glass-panel p-4 border-status-danger/30">

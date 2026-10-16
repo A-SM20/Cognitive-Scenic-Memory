@@ -183,3 +183,71 @@ export interface MemorySummary {
   timestamp: string;
 }
 
+// ── Timeline Types ────────────────────────────────────────────────
+
+export interface TimelineEvent {
+  id: string;
+  event_type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  scene_id?: string | null;
+  object_id?: string | null;
+  image_url?: string | null;
+  metadata?: Record<string, any> | null;
+}
+
+export interface TimelineResponse {
+  total_events: number;
+  events: TimelineEvent[];
+}
+
+// ── Settings Types ────────────────────────────────────────────────
+
+export interface SettingsData {
+  project_name: string;
+  project_version: string;
+  model_name: string;
+  confidence_threshold: number;
+  iou_threshold: number;
+  process_every_n_frames: number;
+  confidence_decay: number;
+  movement_threshold: number;
+  enable_segmentation: boolean;
+  enable_feature_matching: boolean;
+  enable_depth: boolean;
+  enable_llm: boolean;
+  database_url: string;
+  upload_dir: string;
+}
+
+export interface SettingsUpdatePayload {
+  confidence_threshold?: number;
+  iou_threshold?: number;
+  confidence_decay?: number;
+  movement_threshold?: number;
+  enable_segmentation?: boolean;
+  enable_feature_matching?: boolean;
+  enable_depth?: boolean;
+  enable_llm?: boolean;
+}
+
+// ── Chatbot / Query Types ─────────────────────────────────────────
+
+export interface ChatQueryRequest {
+  query: string;
+  scene_id?: string | null;
+  scene_before_id?: string | null;
+  scene_after_id?: string | null;
+}
+
+export interface ChatQueryResponse {
+  query: string;
+  answer: string;
+  confidence: number;
+  supporting_evidence: string[];
+  context?: Record<string, any> | null;
+  timestamp: string;
+}
+
+

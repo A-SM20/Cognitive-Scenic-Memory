@@ -202,8 +202,8 @@ def main():
     parser = argparse.ArgumentParser(description="Cognitive Scene Memory Robot Client")
     parser.add_argument(
         "--server",
-        default="http://127.0.0.1:8000",
-        help="Backend server URL (e.g. http://192.168.1.100:8000)",
+        default="http://172.16.61.163:8001",
+        help="Backend server URL (e.g. http://172.16.61.163:8001)",
     )
     args = parser.parse_args()
 

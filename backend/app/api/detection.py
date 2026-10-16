@@ -8,8 +8,10 @@ GET  /api/health        — System health and readiness check.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Query
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
@@ -70,6 +72,68 @@ async def process_image(
     except Exception as e:
         logger.error("Image processing failed: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=f"Processing failed: {e}")
+
+
+@router.get(
+    "/detection/latest",
+    response_model=Optional[DetectionResult],
+    summary="Get the most recent detection result from any source (including robot)",
+)
+async def get_latest_detection(
+    db: AsyncSession = Depends(get_db),
+) -> Optional[DetectionResult]:
+    """Returns the most recent detection result with annotated image and bounding boxes."""
+    from app.models.scene import SceneRecord
+    from app.models.observation import ObservationRecord
+    from app.models.detection import BoundingBox, Detection
+    from pathlib import Path
+
+    stmt = select(SceneRecord).order_by(SceneRecord.timestamp.desc()).limit(1)
+    res = await db.execute(stmt)
+    scene = res.scalar_one_or_none()
+    if not scene:
+        return None
+
+    obs_stmt = select(ObservationRecord).where(ObservationRecord.scene_id == scene.scene_id)
+    obs_res = await db.execute(obs_stmt)
+    observations = obs_res.scalars().all()
+
+    detections = []
+    for o in observations:
+        detections.append(
+            Detection(
+                class_name=o.class_name,
+                confidence=o.confidence,
+                bbox=BoundingBox(x=o.bbox_x, y=o.bbox_y, w=o.bbox_w, h=o.bbox_h),
+                center_x=o.position_x,
+                center_y=o.position_y,
+                width=o.bbox_w,
+                height=o.bbox_h,
+                timestamp=o.timestamp,
+                frame_id=0,
+            )
+        )
+
+    annotated_url = ""
+    if scene.annotated_image_path:
+        filename = Path(scene.annotated_image_path).name
+        annotated_url = f"/api/uploads/{filename}"
+
+    settings = get_settings()
+    return DetectionResult(
+        scene_id=scene.scene_id,
+        image_path=scene.image_path or "",
+        annotated_image_path=scene.annotated_image_path or "",
+        annotated_image_url=annotated_url,
+        detections=detections,
+        total_objects=scene.object_count or len(detections),
+        processing_time_ms=scene.processing_time_ms or 0.0,
+        model_name=settings.model_name,
+        image_width=1280,
+        image_height=720,
+        timestamp=scene.timestamp,
+    )
+
 
 
 @router.get(

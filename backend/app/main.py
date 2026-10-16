@@ -25,6 +25,9 @@ from app.api.objects import router as objects_router
 from app.api.memory import router as memory_router
 from app.api.scene_graph import router as scene_graph_router
 from app.api.changes import router as changes_router
+from app.api.query import router as query_router
+from app.api.timeline import router as timeline_router
+from app.api.settings import router as settings_router
 
 settings = get_settings()
 setup_logging(settings.log_level)
@@ -93,6 +96,9 @@ app.include_router(objects_router)
 app.include_router(memory_router)
 app.include_router(scene_graph_router)
 app.include_router(changes_router)
+app.include_router(query_router)
+app.include_router(timeline_router)
+app.include_router(settings_router)
 
 # Mount static file serving for uploaded/annotated images
 upload_path = Path(settings.upload_dir)

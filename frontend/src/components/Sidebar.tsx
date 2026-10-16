@@ -14,9 +14,9 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'memory', label: 'Memory', icon: '◈', enabled: true },
   { id: 'scene-graph', label: 'Scene Graph', icon: '◇', enabled: true },
   { id: 'changes', label: 'Changes', icon: '△', enabled: true },
-  { id: 'timeline', label: 'Timeline', icon: '▬', enabled: false, badge: 'Phase 8' },
-  { id: 'query', label: 'Query', icon: '▷', enabled: false, badge: 'Phase 9' },
-  { id: 'settings', label: 'Settings', icon: '⚙', enabled: false },
+  { id: 'timeline', label: 'Timeline', icon: '▬', enabled: true },
+  { id: 'query', label: 'Chatbot & Query', icon: '💬', enabled: true },
+  { id: 'settings', label: 'Settings', icon: '⚙', enabled: true },
 ];
 
 interface SidebarProps {

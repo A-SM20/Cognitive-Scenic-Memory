@@ -5,6 +5,9 @@ import Perception from './pages/Perception';
 import Memory from './pages/Memory';
 import SceneGraph from './pages/SceneGraph';
 import Changes from './pages/Changes';
+import Timeline from './pages/Timeline';
+import Query from './pages/Query';
+import Settings from './pages/Settings';
 import { getHealth } from './services/api';
 import type { PageId } from './types';
 
@@ -40,6 +43,12 @@ export default function App() {
         return <SceneGraph />;
       case 'changes':
         return <Changes />;
+      case 'timeline':
+        return <Timeline />;
+      case 'query':
+        return <Query />;
+      case 'settings':
+        return <Settings />;
       default:
         return (
           <div className="flex items-center justify-center h-64">

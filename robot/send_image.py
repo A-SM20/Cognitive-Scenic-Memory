@@ -88,7 +88,7 @@ def capture_single_image(output_path: Path) -> bool:
 def main():
     parser = argparse.ArgumentParser(description="Capture 1 image from Pi 5 and send to Cognitive Backend")
     parser.add_argument("--ip", default="172.16.61.163", help="Backend PC IP address (e.g., 172.16.61.163 or 192.168.137.1)")
-    parser.add_argument("--port", default=8000, type=int, help="Backend port (default: 8000)")
+    parser.add_argument("--port", default=8001, type=int, help="Backend port (default: 8001)")
     parser.add_argument("--image", default="scan_capture.jpg", help="Local output filename for captured image")
     args = parser.parse_args()
 

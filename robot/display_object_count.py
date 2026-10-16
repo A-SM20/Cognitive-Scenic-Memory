@@ -108,8 +108,8 @@ def main():
     parser = argparse.ArgumentParser(description="LCD Object Count Monitor")
     parser.add_argument(
         "--server",
-        default="http://127.0.0.1:8000",
-        help="Cognitive Scene Memory Server URL (e.g. http://192.168.1.50:8000)",
+        default="http://10.150.189.180:8001",
+        help="Cognitive Scene Memory Server URL (e.g. http://10.150.189.180:8001)",
     )
     args = parser.parse_args()
 

@@ -28,6 +28,7 @@ async def client():
     original_db_url = settings.database_url
     settings.database_url = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
+    TEST_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     if TEST_DB_PATH.exists():
         TEST_DB_PATH.unlink()
 

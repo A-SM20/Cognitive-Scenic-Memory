@@ -1,36 +1,38 @@
 """
 Motor controller for 4-wheel mobile chassis using L298N Dual H-Bridge.
 Compatible with Raspberry Pi 5 using gpiozero (lgpio).
+Supports both 4-wire mode (with L298N 5V jumper caps on ENA/ENB) and 6-wire PWM mode.
 """
 
 import time
-from gpiozero import PWMOutputDevice, OutputDevice
+from typing import Optional
+from gpiozero import OutputDevice, PWMOutputDevice
 
 
 class MotorController:
     """
     Controls 4 DC geared motors paired into 2 channels via an L298N:
-      - Left Channel:  OUT1, OUT2 (ENA = GPIO 18, IN1 = GPIO 17, IN2 = GPIO 27)
-      - Right Channel: OUT3, OUT4 (ENB = GPIO 13, IN3 = GPIO 22, IN4 = GPIO 23)
+      - Left Channel:  OUT1, OUT2 (IN1 = GPIO 17, IN2 = GPIO 27, optional ENA = GPIO 18)
+      - Right Channel: OUT3, OUT4 (IN3 = GPIO 22, IN4 = GPIO 23, optional ENB = GPIO 13)
     """
 
     def __init__(
         self,
-        pin_ena: int = 18,
         pin_in1: int = 17,
         pin_in2: int = 27,
         pin_in3: int = 22,
         pin_in4: int = 23,
-        pin_enb: int = 13,
+        pin_ena: Optional[int] = None,
+        pin_enb: Optional[int] = None,
         turn_90_duration: float = 0.65,  # Tune for floor friction and battery charge
     ):
-        self.ena = PWMOutputDevice(pin_ena, frequency=100)
         self.in1 = OutputDevice(pin_in1)
         self.in2 = OutputDevice(pin_in2)
-
-        self.enb = PWMOutputDevice(pin_enb, frequency=100)
         self.in3 = OutputDevice(pin_in3)
         self.in4 = OutputDevice(pin_in4)
+
+        self.ena = PWMOutputDevice(pin_ena, frequency=100) if pin_ena is not None else None
+        self.enb = PWMOutputDevice(pin_enb, frequency=100) if pin_enb is not None else None
 
         self.turn_90_duration = turn_90_duration
         self.stop()
@@ -41,18 +43,18 @@ class MotorController:
         speed: -1.0 (full reverse) to +1.0 (full forward), 0 is stop.
         """
         speed = max(-1.0, min(1.0, speed))
+        if self.ena is not None:
+            self.ena.value = abs(speed)
+
         if speed > 0:
             self.in1.on()
             self.in2.off()
-            self.ena.value = speed
         elif speed < 0:
             self.in1.off()
             self.in2.on()
-            self.ena.value = abs(speed)
         else:
             self.in1.off()
             self.in2.off()
-            self.ena.value = 0.0
 
     def set_right_motor(self, speed: float) -> None:
         """
@@ -60,35 +62,35 @@ class MotorController:
         speed: -1.0 (full reverse) to +1.0 (full forward), 0 is stop.
         """
         speed = max(-1.0, min(1.0, speed))
+        if self.enb is not None:
+            self.enb.value = abs(speed)
+
         if speed > 0:
             self.in3.on()
             self.in4.off()
-            self.enb.value = speed
         elif speed < 0:
             self.in3.off()
             self.in4.on()
-            self.enb.value = abs(speed)
         else:
             self.in3.off()
             self.in4.off()
-            self.enb.value = 0.0
 
-    def forward(self, speed: float = 0.5) -> None:
+    def forward(self, speed: float = 0.6) -> None:
         """Drive straight forward."""
         self.set_left_motor(speed)
         self.set_right_motor(speed)
 
-    def backward(self, speed: float = 0.5) -> None:
+    def backward(self, speed: float = 0.6) -> None:
         """Drive straight backward."""
         self.set_left_motor(-speed)
         self.set_right_motor(-speed)
 
-    def pivot_left(self, speed: float = 0.5) -> None:
+    def pivot_left(self, speed: float = 0.6) -> None:
         """Pivot on the spot counter-clockwise (Left reverse, Right forward)."""
         self.set_left_motor(-speed)
         self.set_right_motor(speed)
 
-    def pivot_right(self, speed: float = 0.5) -> None:
+    def pivot_right(self, speed: float = 0.6) -> None:
         """Pivot on the spot clockwise (Left forward, Right reverse)."""
         self.set_left_motor(speed)
         self.set_right_motor(-speed)
@@ -115,9 +117,11 @@ class MotorController:
     def close(self) -> None:
         """Release all PWM and GPIO lines safely."""
         self.stop()
-        self.ena.close()
+        if self.ena is not None:
+            self.ena.close()
         self.in1.close()
         self.in2.close()
-        self.enb.close()
+        if self.enb is not None:
+            self.enb.close()
         self.in3.close()
         self.in4.close()

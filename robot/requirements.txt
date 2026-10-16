@@ -1,0 +1,4 @@
+# Dependencies for Raspberry Pi 5 Client
+requests>=2.31.0
+gpiozero>=2.0
+lgpio>=0.2.2.0

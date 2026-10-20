@@ -42,58 +42,64 @@ React Frontend (Vite + TypeScript + Tailwind CSS)
       SQLite
 ```
 
-## Current Status: Phase 2 — Cognitive Intelligence
+## Implementation Status: All Core Phases Fully Operational ✅
 
-### Phase 1 — Foundation ✅
-
+### Phase 1 — Foundation & Neural Perception ✅
 - ✅ Project skeleton and monorepo structure
-- ✅ FastAPI backend with async SQLAlchemy
-- ✅ React + TypeScript + Vite frontend
-- ✅ Tailwind CSS v4 dark robotics theme
-- ✅ SQLite database with scenes, objects, observations tables
+- ✅ FastAPI backend with async SQLAlchemy & SQLite
+- ✅ React + TypeScript + Vite frontend with Tailwind CSS dark robotics theme
 - ✅ Centralized configuration system (`.env` / environment variables)
 - ✅ Structured logging with timestamps
-- ✅ Image upload and processing
-- ✅ **Real YOLO object detection** (no fake/mock data)
-- ✅ Detection API (`POST /api/process/image`)
-- ✅ Health check API (`GET /api/health`)
-- ✅ Scenes and Objects listing APIs
-- ✅ Camera/input source abstraction (Image, Video, Webcam)
-- ✅ Annotated image generation with bounding boxes
-- ✅ Perception dashboard with drag-and-drop upload
-- ✅ Detection results visualization (cards + summary table)
-- ✅ System overview dashboard
-- ✅ Automated tests (config, detection, API)
+- ✅ Real-time YOLOv8 object detection (no mock data)
+- ✅ Annotated image generation with color-coded bounding boxes and labels
+- ✅ Camera/input source abstraction (Image, Video, Live Webcam)
+- ✅ Detection API endpoints (`POST /api/process/image`, `GET /api/health`, `/api/detection/latest`)
 
-### Phase 2 — Cognitive Intelligence ✅
-
-- ✅ **Scene Memory & History** — persistent scene snapshots with database persistence
-- ✅ **Cognitive Confidence Model** — Bayesian decay/reinforcement for object memory
-- ✅ **Object Lifecycle Management** — ACTIVE → POSSIBLY_MISSING → MISSING → REMOVED
-- ✅ **Semantic Scene Graph** — NetworkX-based spatial relationship graph
-- ✅ Spatial relationships: ON, UNDER, LEFT_OF, RIGHT_OF, NEAR, CONTAINS, INSIDE, ABOVE, BELOW, ADJACENT
-- ✅ **Change Detection Engine** — ADDED, REMOVED, MOVED, REPLACED, CONFIDENCE_CHANGED
+### Phase 2 — Cognitive Scene Memory & Spatial Graphs ✅
+- ✅ **Persistent Scene Snapshots** — multi-scene storage in SQLite database
+- ✅ **Cognitive Confidence Model** — Bayesian decay and observation reinforcement
+- ✅ **Object Lifecycle Management** — `ACTIVE` → `POSSIBLY_MISSING` → `MISSING` → `REMOVED`
+- ✅ **Semantic Scene Graph** — NetworkX-based spatial relationship reasoning
+- ✅ Spatial relationships: `ON`, `UNDER`, `LEFT_OF`, `RIGHT_OF`, `NEAR`, `CONTAINS`, `INSIDE`, `ABOVE`, `BELOW`, `ADJACENT`
+- ✅ **Change Detection Engine** — detects `ADDED`, `REMOVED`, `MOVED`, `REPLACED`, `CONFIDENCE_CHANGED`
 - ✅ Human-readable change descriptions with magnitude quantification
 - ✅ Memory API endpoints (`/api/memory/summary`, `/api/memory/objects`, `/api/memory/decay`)
-- ✅ Scene Graph API endpoints (`/api/scene-graph/{scene_id}`, build, relationships)
-- ✅ Change Detection API endpoints (`/api/changes/compare`, recent, by-scene, by-object)
-- ✅ Memory dashboard with confidence bars and status filtering
-- ✅ Interactive force-directed scene graph visualization (canvas-based)
-- ✅ Change detection dashboard with comparison tool and timeline
-- ✅ Automated cognitive pipeline (runs after every detection)
-- ✅ 40 automated tests (config, detection, API, memory, scene graph, change detection)
+- ✅ Scene Graph API endpoints (`/api/scene-graph/{scene_id}`, `/api/scene-graph/{scene_id}/build`)
+- ✅ Change Detection API endpoints (`/api/changes/compare`, `/api/changes/recent`)
 
-### Upcoming Phases
+### Phase 3 — Object Tracking & Persistent Identity ✅
+- ✅ Spatial IoU matching and Hungarian assignment algorithm across frames
+- ✅ Persistent object identity tracking across multiple room viewpoints
+- ✅ Spatial center tracking and drift quantification
 
-| Phase | Feature | Status |
-|-------|---------|--------|
-| 2 | Object Tracking (ByteTrack/SORT) | Planned |
-| 3 | Persistent Object Identity | Planned |
-| 8 | Temporal Reasoning | Planned |
-| 9 | Natural Language Query | Planned |
-| 10 | Full Visualization Dashboard | Planned |
-| 11 | Evaluation & Metrics | Planned |
-| 12 | ROS2 / Hardware Integration | Planned |
+### Phase 4 — Temporal Reasoning & Timeline ✅
+- ✅ Chronological event stream tracking object appearances, movements, and state changes
+- ✅ Timeline API endpoints (`/api/timeline/events`, `/api/timeline/scene/{scene_id}`)
+- ✅ Interactive visual timeline with category filters and event summaries
+
+### Phase 5 — Natural Language Spatial Query Engine ✅
+- ✅ Query engine answering spatial and semantic queries (e.g., *"Where is the bottle?"*, *"What changed?"*, *"What is near the chair?"*)
+- ✅ Natural language query API endpoint (`POST /api/query`)
+- ✅ Interactive Query console in the web dashboard
+
+### Phase 6 — Visualization & Robot Control Dashboard ✅
+- ✅ **Overview Dashboard**: Live system health, active objects count, live robot auto-sync, 10-stage perception pipeline
+- ✅ **Perception Dashboard**: Drag-and-drop image upload, live annotated bounding boxes, detection metrics
+- ✅ **Memory Dashboard**: Cognitive confidence bars, lifecycle filters, observation history
+- ✅ **Scene Graph Visualizer**: Interactive canvas force-directed graph with spatial edges
+- ✅ **Changes Dashboard**: Side-by-side scene comparison and classified change cards
+- ✅ **Timeline View**: Chronological audit trail of environmental changes
+- ✅ **Query Console**: Natural language spatial search
+- ✅ **Settings View**: Detection thresholds, IoU overlap, model selection, memory decay rates
+
+### Phase 7 — Raspberry Pi 5 Hardware & Robotics Integration ✅
+- ✅ Raspberry Pi 5 (RP1 GPIO & CSI camera architecture)
+- ✅ Pi Camera Module with auto 90° rotation and warm-up capture
+- ✅ L298N Dual H-Bridge 4WD motor controller (4-pin and 6-pin PWM modes)
+- ✅ MG90S metal-gear servo camera mount with auto-detaching PWM anti-jitter
+- ✅ JHD162A 16×2 Character LCD in 4-bit write-only safe mode
+- ✅ Interactive teleoperation & scanner (`teleop_drive.py` with WASD + camera pan + live snapshot)
+- ✅ Automated 4-direction room mapping (`robot_cognitive_agent.py`)
 
 ## Quick Start
 

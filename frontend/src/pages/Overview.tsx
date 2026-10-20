@@ -169,31 +169,47 @@ export default function Overview() {
 
       {/* Pipeline Status */}
       <div className="glass-panel p-5">
-        <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-          <span className="text-accent-purple">▶</span> Perception Pipeline
-        </h3>
-        <div className="flex items-center gap-1 overflow-x-auto pb-2">
-          {['SENSE', 'DETECT', 'TRACK', 'IDENTIFY', 'LOCALIZE', 'UNDERSTAND', 'REMEMBER', 'COMPARE', 'REASON', 'EXPLAIN'].map(
-            (stage, i) => (
-              <div key={stage} className="flex items-center gap-1">
-                <div
-                  className={`
-                    px-2.5 py-1.5 rounded text-[10px] font-mono font-semibold whitespace-nowrap
-                    ${i < 2 ? 'bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/20' : 'bg-bg-input text-text-muted/40'}
-                  `}
-                >
-                  {stage}
-                </div>
-                {i < 9 && (
-                  <span className={`text-xs ${i < 1 ? 'text-accent-cyan' : 'text-text-muted/20'}`}>→</span>
-                )}
-              </div>
-            )
-          )}
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+            <span className="text-accent-emerald animate-pulse">●</span>
+            <span>Cognitive Perception Pipeline</span>
+          </h3>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-emerald/15 text-accent-emerald border border-accent-emerald/30">
+            ALL 10 STAGES ACTIVE
+          </span>
         </div>
-        <p className="text-[10px] text-text-muted mt-2 font-mono">
-          Phase 1: SENSE + DETECT active · Phases 2-12 will activate remaining stages
-        </p>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2">
+          {[
+            { name: 'SENSE', group: 'perception', color: 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan' },
+            { name: 'DETECT', group: 'perception', color: 'border-accent-cyan/40 bg-accent-cyan/15 text-accent-cyan' },
+            { name: 'TRACK', group: 'tracking', color: 'border-accent-emerald/40 bg-accent-emerald/15 text-accent-emerald' },
+            { name: 'IDENTIFY', group: 'tracking', color: 'border-accent-emerald/40 bg-accent-emerald/15 text-accent-emerald' },
+            { name: 'LOCALIZE', group: 'tracking', color: 'border-accent-emerald/40 bg-accent-emerald/15 text-accent-emerald' },
+            { name: 'UNDERSTAND', group: 'memory', color: 'border-accent-purple/40 bg-accent-purple/15 text-accent-purple' },
+            { name: 'REMEMBER', group: 'memory', color: 'border-accent-purple/40 bg-accent-purple/15 text-accent-purple' },
+            { name: 'COMPARE', group: 'reasoning', color: 'border-accent-amber/40 bg-accent-amber/15 text-accent-amber' },
+            { name: 'REASON', group: 'reasoning', color: 'border-accent-amber/40 bg-accent-amber/15 text-accent-amber' },
+            { name: 'EXPLAIN', group: 'reasoning', color: 'border-accent-amber/40 bg-accent-amber/15 text-accent-amber' },
+          ].map((stage, i) => (
+            <div key={stage.name} className="flex items-center gap-1.5">
+              <div
+                className={`
+                  px-2.5 py-1.5 rounded-md text-[10px] font-mono font-semibold whitespace-nowrap border shadow-sm transition-all
+                  ${stage.color}
+                `}
+              >
+                {stage.name}
+              </div>
+              {i < 9 && (
+                <span className="text-xs text-text-muted/50 font-bold">→</span>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-between text-[10px] text-text-muted mt-2 font-mono gap-2 border-t border-border-subtle/40 pt-2">
+          <span>End-to-End Cognitive Architecture: Real-time YOLOv8 + Spatial IoU Tracking + Scene Graphs + Bayesian Memory + Change Reasoning</span>
+          <span className="text-accent-emerald font-semibold">100% Operational</span>
+        </div>
       </div>
     </div>
   );

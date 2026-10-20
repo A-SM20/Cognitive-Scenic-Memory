@@ -15,8 +15,9 @@ Camera Servo:
   [L] Pan Right (+15°)
   [K] Center Camera (90°)
 
-Cognitive Perception:
-  [C] or [Enter] Capture Camera Frame -> Upload to Backend -> Run YOLO & Scene Memory -> Show on LCD & Web App!
+Perception & Imaging:
+  [R] Cycle Image Rotation (0° -> 90° -> 180° -> 270°)
+  [C] or [Enter] Capture Camera Frame -> Rotate -> Upload to Backend -> Run YOLO & Scene Memory -> Show on LCD & Web App!
   [Q] Quit & Safely Stop Motors
 """
 
@@ -54,6 +55,47 @@ def safe_lcd_write(lcd: Optional[object], line1: str, line2: str = ""):
             lcd.write_message(line1, line2)
         except Exception:
             pass
+
+
+def rotate_image(image_path: Path, rotation_deg: int = 90) -> bool:
+    """Rotates image file in-place by specified degrees (90, 180, 270 clockwise)."""
+    if rotation_deg % 360 == 0:
+        return True
+
+    # Method 1: Pillow / PIL
+    try:
+        from PIL import Image
+        with Image.open(image_path) as img:
+            # Negative for clockwise rotation in PIL (expand=True swaps width/height)
+            rotated = img.rotate(-rotation_deg, expand=True)
+            rotated.save(image_path, "JPEG", quality=92)
+            print(f"  [✓] Image rotated {rotation_deg}° clockwise.")
+            return True
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"  [!] PIL rotation error: {e}")
+
+    # Method 2: OpenCV
+    try:
+        import cv2
+        img = cv2.imread(str(image_path))
+        if img is not None:
+            if rotation_deg == 90:
+                img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            elif rotation_deg == 180:
+                img = cv2.rotate(img, cv2.ROTATE_180)
+            elif rotation_deg == 270:
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cv2.imwrite(str(image_path), img)
+            print(f"  [✓] Image rotated {rotation_deg}° clockwise (via OpenCV).")
+            return True
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"  [!] OpenCV rotation error: {e}")
+
+    return False
 
 
 def capture_frame(output_path: Path, camera_obj: Optional[object] = None) -> bool:
@@ -124,6 +166,7 @@ def main():
     parser = argparse.ArgumentParser(description="Interactive Robot Drive & Cognitive Scan")
     parser.add_argument("--ip", default="10.150.189.180", help="Cognitive Server PC IP")
     parser.add_argument("--port", type=int, default=8001, help="Cognitive Server Port")
+    parser.add_argument("--rotate", type=int, default=90, choices=[0, 90, 180, 270], help="Rotate image clockwise before sending (default: 90)")
     parser.add_argument("--servo-pin", type=int, default=12, help="Servo GPIO pin (default: 12)")
     parser.add_argument("--in1", type=int, default=17, help="Motor IN1 (default: 17)")
     parser.add_argument("--in2", type=int, default=27, help="Motor IN2 (default: 27)")
@@ -136,11 +179,13 @@ def main():
     backend_url = f"http://{args.ip}:{args.port}"
     endpoint = f"{backend_url}/api/process/image"
     health_url = f"{backend_url}/api/health"
+    rotation_deg = args.rotate
 
     print("=" * 65)
     print("  COGNITIVE SCENE MEMORY — ROBOT TELEOPERATION & SCANNER")
     print("=" * 65)
     print(f"Server Target : {backend_url}")
+    print(f"Image Rotation: {rotation_deg}° clockwise")
     print(f"Servo Pin     : GPIO {args.servo_pin}")
     print(f"Motor Pins    : IN1={args.in1}, IN2={args.in2}, IN3={args.in3}, IN4={args.in4}")
     print("=" * 65)
@@ -150,7 +195,7 @@ def main():
     if LCD_AVAILABLE:
         try:
             lcd = LCD1602()
-            safe_lcd_write(lcd, "Teleop Ready", "WASD to Drive")
+            safe_lcd_write(lcd, "Teleop Ready", f"Rot: {rotation_deg} deg")
         except Exception:
             pass
 
@@ -198,7 +243,8 @@ def main():
     print("  [W] Forward    | [S] Backward   | [A] Turn Left   | [D] Turn Right")
     print("  [X] Stop       | [Space] Stop")
     print("  [J] Pan Left   | [L] Pan Right  | [K] Center Cam (90°)")
-    print("  [C] / [Enter]  Capture & Process in Cognitive Scene Memory!")
+    print(f"  [R] Cycle Rotation (Current: {rotation_deg}°)")
+    print("  [C] / [Enter]  Capture -> Rotate -> Process in Cognitive Scene Memory!")
     print("  [Q] Quit")
     print("-" * 65)
 
@@ -278,6 +324,11 @@ def main():
                     servo.center()
                 safe_lcd_write(lcd, "Servo Centered", "Angle: 90 deg")
 
+            elif k == 'r':
+                rotation_deg = (rotation_deg + 90) % 360
+                print(f">> [ROTATION] Changed to {rotation_deg}° clockwise 🔄")
+                safe_lcd_write(lcd, "Rotation Set", f"{rotation_deg} deg")
+
             elif k in ['c', '\r', '\n']:
                 # Stop motors first
                 if motors:
@@ -292,6 +343,10 @@ def main():
                     print("[✗] Camera capture failed!")
                     safe_lcd_write(lcd, "Camera Error", "Capture Failed")
                     continue
+
+                # Rotate image before uploading if needed
+                if rotation_deg != 0:
+                    rotate_image(img_path, rotation_deg)
 
                 safe_lcd_write(lcd, f"Scan #{capture_index}", "Uploading YOLO")
                 print(f"[*] Uploading to {endpoint}...")

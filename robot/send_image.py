@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Cognitive Scene Memory — Single Image Capture & Upload Client (Pi 5)
-Captures 1 frame from the Pi Camera, uploads to the backend server via HTTP,
+Captures 1 frame from the Pi Camera, rotates it by 90°, uploads to the backend server via HTTP,
 and displays the detected object count on the 16x2 JHD162A LCD screen.
 """
 
@@ -37,6 +37,44 @@ def safe_lcd_write(lcd: Optional[object], line1: str, line2: str = ""):
             lcd.write_message(line1, line2)
         except Exception as e:
             print(f"[LCD Error] {e}")
+
+
+def rotate_image(image_path: Path, rotation_deg: int = 90) -> bool:
+    """Rotates image file in-place by specified degrees (90, 180, 270 clockwise)."""
+    if rotation_deg % 360 == 0:
+        return True
+
+    try:
+        from PIL import Image
+        with Image.open(image_path) as img:
+            rotated = img.rotate(-rotation_deg, expand=True)
+            rotated.save(image_path, "JPEG", quality=92)
+            print(f"[✓] Image rotated {rotation_deg}° clockwise.")
+            return True
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"[!] PIL rotation error: {e}")
+
+    try:
+        import cv2
+        img = cv2.imread(str(image_path))
+        if img is not None:
+            if rotation_deg == 90:
+                img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+            elif rotation_deg == 180:
+                img = cv2.rotate(img, cv2.ROTATE_180)
+            elif rotation_deg == 270:
+                img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cv2.imwrite(str(image_path), img)
+            print(f"[✓] Image rotated {rotation_deg}° clockwise (via OpenCV).")
+            return True
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"[!] OpenCV rotation error: {e}")
+
+    return False
 
 
 def capture_single_image(output_path: Path) -> bool:
@@ -87,8 +125,9 @@ def capture_single_image(output_path: Path) -> bool:
 
 def main():
     parser = argparse.ArgumentParser(description="Capture 1 image from Pi 5 and send to Cognitive Backend")
-    parser.add_argument("--ip", default="172.16.61.163", help="Backend PC IP address (e.g., 172.16.61.163 or 192.168.137.1)")
+    parser.add_argument("--ip", default="10.150.189.180", help="Backend PC IP address (e.g., 10.150.189.180 or 192.168.137.1)")
     parser.add_argument("--port", default=8001, type=int, help="Backend port (default: 8001)")
+    parser.add_argument("--rotate", type=int, default=90, choices=[0, 90, 180, 270], help="Rotate image clockwise before sending (default: 90)")
     parser.add_argument("--image", default="scan_capture.jpg", help="Local output filename for captured image")
     args = parser.parse_args()
 
@@ -99,7 +138,8 @@ def main():
     print("=" * 60)
     print("  COGNITIVE SCENE MEMORY — PI 5 SINGLE-SHOT SENSOR")
     print("=" * 60)
-    print(f"Target Server: {backend_url}")
+    print(f"Target Server : {backend_url}")
+    print(f"Image Rotation: {args.rotate}° clockwise")
 
     # Initialize LCD
     lcd = None
@@ -136,7 +176,11 @@ def main():
         safe_lcd_write(lcd, "Camera Error", "Capture Failed")
         return
 
-    # 3. Upload to Backend
+    # 3. Rotate Image
+    if args.rotate != 0:
+        rotate_image(image_file, args.rotate)
+
+    # 4. Upload to Backend
     safe_lcd_write(lcd, "Uploading...", "Running YOLO")
     print(f"[*] Uploading {image_file.name} ({image_file.stat().st_size // 1024} KB) to {endpoint}...")
 
@@ -167,7 +211,7 @@ def main():
             print("=" * 50)
             print("💡 Now open the website at http://localhost:5173 to view the live annotated photo and scene graph!")
 
-            # 4. Display on 16x2 LCD
+            # 5. Display on 16x2 LCD
             safe_lcd_write(lcd, f"Objs: {total_objs} found", classes_str[:16])
 
         else:
